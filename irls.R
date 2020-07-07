@@ -10,6 +10,9 @@ irls <- function (f, b, b1, b1inv, b2, init, tol = 1e-6) {
   X <- model.matrix(f) # design matrix
   mu <- init(y)
   eta <- b1inv(mu) # g(mu)
+  
+  print(head(eta))
+  
   lhood <- sum(y * eta - b(eta))
 
   # iterate
@@ -32,4 +35,13 @@ irls <- function (f, b, b1, b1inv, b2, init, tol = 1e-6) {
 # e.g. Poisson with canonical link:
 poisson.irls <- function (f, tol = 1e-6)
   irls(f, exp, exp, log, exp, function (y) y + 0.5, tol)
+
+# e.g. binomial with canonical link:
+b = function(theta) log(1+exp(theta))
+b2 = function(theta) plogis(theta)*(1-plogis(theta))
+logit = function(x) log(x/(1-x))
+
+binomial.irls <- function (f, tol = 1e-6)
+  irls(f, b=b, b1 = plogis, b1inv = logit, b2 = b2, function (y) ifelse(y>.5,.7,.2), tol)
+
 
