@@ -45,7 +45,7 @@ EM.iter = function(beta.current, theta.current) {
   U = t(X) %*% (Y - phat.current) - dstar * beta.current
   H = solve(diag(dstar) + t(as.numeric(phat.current * (1-phat.current)) * X ) %*% X)
   beta.new = beta.current + H %*% U
-  theta.new = sum(pstar)/p # assumes a=b=1
+  theta.new = sum(pstar)/(p+1) # assumes a=b=1
   
   return(list(beta=beta.new, theta = theta.new))
   
@@ -55,25 +55,18 @@ EM.iter = function(beta.current, theta.current) {
 EMVS <- function(beta.init, theta.init, nu_0, nu_1) {
   
   beta.current <- beta.init
+  theta.current = theta.init
   
-  for(i in 1:6) {
+  delta.ll <- 1
+  
+  while(delta.ll > 1e-6) {
+    beta.old = beta.current
     it = EM.iter(beta.current, theta.current)
     beta.current = it$beta
     theta.current = it$theta
+    delta.ll = sqrt(crossprod(beta.current - beta.old))
   }
   
-  # store log-likehoods for each iteration
-  #log_liks <- c()
-  #ll       <- compute.log.lik(L, w.curr)
-  #log_liks <- c(log_liks, ll)
-  #delta.ll <- 1
-  
-  #while(delta.ll > 1e-5) {
-  #  w.curr   <- EM.iter(w.curr, L)
-  #  ll       <- compute.log.lik(L, w.curr)
-  #  log_liks <- c(log_liks, ll)
-  #  delta.ll <- log_liks[length(log_liks)]  - log_liks[length(log_liks)-1]
-  #}
   return(list(beta.current, theta.current))
 }
 
