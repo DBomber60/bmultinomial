@@ -3,10 +3,9 @@
 nr.beta = function(beta.init, phat.init, dstar) {
   beta.current= beta.init
   phat.current = phat.init
-  
-  dnr.ll <- 1
-  # while (dnr.ll > 1e6)
-  for (nr in 1:30) {
+  dnr.ll = 1
+
+  while(dnr.ll > 1e-6) {
     beta.old = beta.current
     U = t(X) %*% (Y - phat.current) - dstar * beta.current
     H = solve(diag(dstar) + t(as.numeric(phat.current * (1-phat.current)) * X ) %*% X)
