@@ -11,8 +11,6 @@ irls <- function (f, b, b1, b1inv, b2, init, tol = 1e-6) {
   mu <- init(y)
   eta <- b1inv(mu) # g(mu)
   
-  print(head(eta))
-  
   lhood <- sum(y * eta - b(eta))
 
   # iterate
