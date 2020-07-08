@@ -10,10 +10,10 @@ EM.iter = function(beta.current, theta.current, nu_0, nu_1) {
   #print(p0)
   
   pstar = p1/(p0 + p1)
-  print(pstar)
+  #print(pstar)
   
   dstar = pstar/nu_1 + (1-pstar)/nu_0
-  
+  print(dstar)
   
   # M-Step
   
@@ -25,14 +25,15 @@ EM.iter = function(beta.current, theta.current, nu_0, nu_1) {
     U = t(X) %*% (Y - phat.current) - dstar * beta.current
     H = solve(diag(dstar) + t(as.numeric(phat.current * (1-phat.current)) * X ) %*% X)
     beta.current = beta.current + H %*% U
+    eta.current = X %*% beta.current
+    phat.current = plogis(eta.current)
   }
   
   beta.new = beta.current
-  print(beta.new)
   
   # now, update theta
   theta.new = sum(pstar)/(p+1) # assumes a=b=1
-  print(theta.new)
+  #print(theta.new)
   
   return(list(beta=beta.new, theta = theta.new, pstar = pstar))
   
@@ -46,7 +47,7 @@ EMVS <- function(beta.init, theta.init, nu_0, nu_1) {
   
   delta.ll <- 1
   # while(delta.ll > 1e-6)
-   for (i in 1:2) {
+   for (i in 1:10) {
     beta.old = beta.current
     it = EM.iter(beta.current, theta.current, nu_0, nu_1)
     beta.current = it$beta

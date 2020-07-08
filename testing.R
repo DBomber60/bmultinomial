@@ -22,7 +22,7 @@ nu_1 = 10
 theta_0 = 0.5
 beta_0 = rep(0, p+1)
 
-j = EMVS(beta_0, theta_0, nu_0 = .5, nu_1 = 100)
+j = EMVS(beta_0, theta_0, nu_0 = .05, nu_1 = 100)
 
 
 
