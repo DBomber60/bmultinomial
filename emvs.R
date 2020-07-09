@@ -39,7 +39,7 @@ EM.iter = function(beta.current, theta.current, nu_0, nu_1) {
   #print(pstar)
   
   dstar = pstar/nu_1 + (1-pstar)/nu_0
-  print(dstar)
+  print(dim(diag(dstar)))
   
   # M-Step
   
