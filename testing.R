@@ -6,7 +6,7 @@ set.seed(1)
 
 # generate data
 n = 100
-p = 50
+p = 20
 X = cbind(1, matrix( rnorm(n * p), nrow = n) )
 beta.true = c(1, 0.2, 1, 1, 1.5, 3, rep(0, p-5))
 eta = X %*% beta.true
@@ -20,7 +20,7 @@ nr.beta( rep(0,p+1), phat.init = rep(.5, n), dstar = rep(0, p+1) )
 
 beta_0 = rep(0, p+1)
 
-j = EMVS(beta_0, theta.init = .5, nu_0 = .05, nu_1 = 1000)
+j = EMVS(beta_0, theta.init = .5, nu_0 = .1, nu_1 = 1000)
 
 # correlated predictors
 # make a covariance matrix
