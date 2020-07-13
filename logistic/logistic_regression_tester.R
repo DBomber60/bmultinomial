@@ -1,6 +1,6 @@
 # for 6-5-2020 LC meeting
 source('MALA.R')
-source('BayesLRsampler.R')
+#source('BayesLRsampler.R')
 
 #Generate data
 n=200;
