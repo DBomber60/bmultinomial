@@ -27,10 +27,10 @@ plot_emvs = function(p, nsig, beta_0, theta.init, nu0_low, nu0_high, increment, 
   long$nu = rep(nu_0_seq, p)
   
   ggplot(data = long, aes(x=nu, y=beta[,1])) +
-    geom_line(aes(colour=var)) +
-    scale_color_manual(values=c( rep('#E69F00', 6), rep('#999999', (p-5))) ) +
+    geom_line(aes(colour=var)) + theme_bw() +
+    scale_color_manual(values=c( rep('#E69F00', nsig), rep('#999999', (p-nsig))) ) +
     theme(legend.position = "none") + ylab(TeX("$\\hat{\\beta}$")) +
-    xlab(TeX("$\\nu_0$")) + theme_bw()
+    xlab(TeX("$\\nu_0$"))
 }
 
 # now, fill in the data
