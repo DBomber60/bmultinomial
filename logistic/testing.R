@@ -1,16 +1,23 @@
 rm(list=ls())
 source('irls.R')
 source('logistic/emvs.R')
+source('plotting.R')
 library(tidyverse)
 library(mvtnorm)
 set.seed(1)
 
-# 
+# to do on logistic model (before moving onto multinomial)
+# 1. adjust EMVS so that intercept is always in model
+# 2. adjust plotting for EMVS to choose the right hyperparameters
+# 3. get full gibbs sampler to work on mMALA case
+# 4. make diagnostic plots from MCMC
+
+
 
 # correlated predictors
 # make a covariance matrix
-p = 10
-n = 100
+p = 50
+n = 500
 
 sig = matrix(nrow = p, ncol = p)
 
@@ -34,9 +41,10 @@ summary(glm(Y~X-1, family = binomial))
 # initialize parameters
 
 beta_0 = rep(0, p)
-
 j = EMVS(beta_0, theta.init = .5, nu_0 = .2, nu_1 = 100)
 
+# now, let's send this to plotter
+plot_emvs(p, 5, beta_0, theta.init = .5, nu0_low = 0.01, nu0_high = 1, increment = .01, nu_1=1000)
 
 
 # generate data
