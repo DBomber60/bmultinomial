@@ -35,10 +35,10 @@ EM.iter = function(beta.current, theta.current, nu_0, nu_1) {
   
   # maximize beta using Newtwon Rhapson
   
-  beta.new = nr.beta(rep(0, p+1), phat.init = rep(.5, n), dstar)
+  beta.new = nr.beta(rep(0, p), phat.init = rep(.5, n), dstar)
 
   # now, update theta
-  theta.new = sum(pstar)/(p+1) # assumes a=b=1
+  theta.new = sum(pstar)/(p) # assumes a=b=1
   return(list(beta=beta.new, theta = theta.new, pstar = pstar))
 }
 
