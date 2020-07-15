@@ -48,8 +48,6 @@ dG = function(beta, y, X) {
 
 
 # let's get first element
-
-
 element1 = function(Ginv, dG, beta, y, X) {
   p = dim(Ginv)[1]
   output1 = array(0,dim = c(p,1))
