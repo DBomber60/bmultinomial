@@ -31,6 +31,27 @@ beta_prop_mMALA = function(beta_old, epsilon, y, X, dstar) {
   return( beta_old + .5 * epsilon^2 * C %*% grad(beta_old, y, X, dstar) + epsilon * rootC %*% rnorm(p) )
 }
 
+# MMALA acceptance probability
+acc_mMALA = function(beta_old, beta_prop, y, X, epsilon, dstar) {
+  a = exp(logpi(beta_prop,y,X, dstar) - logpi(beta_old,y,X, dstar) )
+  
+  print(a)
+  Ginv_old = hessian(beta_old, y, X, dstar)
+  grad_old = grad(beta_old, y, X, dstar)
+  
+  Ginv_new = hessian(beta_prop, y, X, dstar)
+  grad_new = grad(beta_prop, y, X, dstar)
+  
+  new_given_old = dmvnorm(as.numeric(beta_prop), mean= beta_old + .5 * epsilon^2 * Ginv_old %*% grad_old,
+                          sigma = epsilon^2 * Ginv_old, log = T)
+  
+  old_given_new = dmvnorm(as.numeric(beta_old), mean= beta_prop + .5 * epsilon^2 * Ginv_new %*% grad_new,
+                          sigma = epsilon^2 * Ginv_new, log = T)
+  
+  b = exp(old_given_new - new_given_old)
+  return(a * b)
+}
+
 
 # functions for riemann manifold
 
@@ -148,8 +169,50 @@ M2MALA_logRegr = function(Niter, y, X, epsilon, beta.init){
     if (runif(1)<=Acc){
       beta = beta_prop;
     }
-    epsilon = epsilon + (1/jj^0.7)*(Acc - 0.45);
+    epsilon = epsilon + (1/jj^0.7)*(Acc - 0.5);
     Res[jj,] = beta$beta
+  }
+  return(Res)
+}
+
+# dstar contains diagonal elements of D
+
+mMALA_logRegr = function(Niter, y, X, epsilon, beta.init, theta.init, pstar, v0, v1) { #, theta.init, gamma.init){
+  p=length(X[1,]); n=length(y);
+  Res = matrix(NA,ncol=p,nrow = Niter);
+  
+  # initialize parameters
+  beta = beta.init 
+  gam = ifelse(pstar > .5, 1, 0)
+  dstar = ifelse(gam==1, 1/v1, 1/v0)
+  theta = theta.init
+  
+  lpi = logpi(beta,y,X, dstar);
+  
+  # iterate
+  for ( jj in 1:Niter){
+    print(jj)
+    
+    # sample beta
+    beta_prop =  beta_prop_mMALA(beta, epsilon, y, X, dstar) 
+
+    alpha = acc_mMALA(beta_old = beta, beta_prop, y, X, epsilon, dstar)
+    Acc = min(1,alpha)
+    if (runif(1)<=Acc){
+      beta= beta_prop;
+    }
+    
+    # sample theta
+    theta = rbeta(1, 1 + sum(gam), 1 + p - sum(gam))
+    
+    # sample gamma
+    p1 = dnorm(beta, sd = sqrt(v1)) * theta
+    p0 = dnorm(beta, sd = sqrt(v0)) * (1-theta)
+    gam = rbinom(p, 1, prob = p1/(p1 + p0))
+    dstar = ifelse(gam==1, 1/v1, 1/v0)
+    
+    epsilon = epsilon + (1/jj^0.7)*(Acc - 0.5);
+    Res[jj,] = beta
   }
   return(Res)
 }

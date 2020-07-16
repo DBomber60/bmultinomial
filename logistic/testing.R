@@ -19,7 +19,7 @@ set.seed(1)
 
 # correlated predictors
 # make a covariance matrix
-p = 20
+p = 10
 n = 500
 
 sig = matrix(nrow = p, ncol = p)
@@ -30,9 +30,9 @@ for(i in 1:p) {
   }
 }
 
-sig.5 = (exp(sig * log(.3)))
-X = cbind(rmvnorm(n, sigma = sig.5))
-#X = rmvnorm(n, mean = rep(0,p))
+sig.5 = (exp(sig * log(.6)))
+#X = cbind(rmvnorm(n, sigma = sig.5))
+X = rmvnorm(n, mean = rep(0,p)) # uncorrelated
 
 beta.true = c(1, 1, 1, 1.5, 3, rep(0, p-5))
 eta = X %*% beta.true
@@ -52,9 +52,11 @@ init.vals = EMVS(beta_0, theta.init = .5, nu_0 = .5, nu_1 = 100)
 
 #Call the MCMC Sampler
 epsilon = .05;
-Niter = 2;
+Niter = 1000;
 burnin = floor(0.2 * Niter)
-Res.mM = M2MALA_logRegr(Niter,Y,X,epsilon, beta.init = init.vals[[1]])
+Res.mM = mMALA_logRegr(Niter,Y,X,epsilon, beta.init = init.vals[[1]], theta.init = init.vals[[2]],
+                       pstar = init.vals[[3]], v0 = 0.5, v1 = 1000)
+#Res.MM = M2MALA_logRegr(Niter,Y,X,epsilon, beta.init = init.vals[[1]])
 
 # in the MCMC, beta is a list that contains the beta vector, gradient, hessian, and terms
 
@@ -66,5 +68,5 @@ plotter = function(output, whichbeta, burnin, Niter, type) {
 }
 
 par(mfrow = c(1,3))
-plotter(Res.mM, whichbeta = 4, burnin, Niter, type = "MMALA")
+plotter(Res.mM, whichbeta = 3, burnin, Niter, type = "MMALA")
 
