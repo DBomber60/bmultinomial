@@ -40,7 +40,7 @@ dGdbetaj = function(beta, y, X, j) {
   phat = plogis(eta)
   W = as.numeric(phat* (1-phat)) # Var(y)
   Vj = (1-2*phat) * X[,j]
-  return(t(X) %*% diag(W) %*% diag(as.numeric(Vj), nrow = n) %*% X)
+  return(t(X) %*% diag(W, nrow = n) %*% diag(as.numeric(Vj), nrow = n) %*% X)
 }
 
 # input: beta,y,X
@@ -82,10 +82,12 @@ beta_prop_M2MALA = function(beta_old, epsilon, y, X, dstar) {
   #dG = dG(beta_old,y,X)
   rootC = chol(C)
   elements = beta_old$elements #element1(C, dG, beta_old, y, X)
-  mu_prop = beta_old$beta + .5 * epsilon^2 * C %*% gradient - epsilon^2 * elements[[1]] + .5 * epsilon^2 * elements[[2]]
+  mu_prop = beta_old$beta + .5 * epsilon^2 * C %*% gradient - epsilon^2 * elements[[1]] + 
+    .5 * epsilon^2 * elements[[2]]
   beta_prop = mu_prop + epsilon * rootC %*% rnorm(p)
   
-  # now get moments associated with the beta proposal
+  # now get moments associated with the beta proposal 
+  
   gnew = grad(beta_prop, y, X, dstar)
   hnew = hessian(beta_prop, y, X, dstar)
   elements = element1(hnew, beta_prop, y, X)
@@ -134,7 +136,6 @@ M2MALA_logRegr = function(Niter, y, X, epsilon, beta.init){
   # beta is a list that contains beta as well as the 'terms'
   beta = list(beta=beta, gradient = gradient, hess = hess, elements = elements)
   
-  
   lpi = logpi(beta$beta, y, X, dstar);
   
   for (jj in 1:Niter) {
@@ -147,7 +148,7 @@ M2MALA_logRegr = function(Niter, y, X, epsilon, beta.init){
     if (runif(1)<=Acc){
       beta = beta_prop;
     }
-    epsilon = epsilon + (1/jj^0.7)*(Acc - 0.4);
+    epsilon = epsilon + (1/jj^0.7)*(Acc - 0.45);
     Res[jj,] = beta$beta
   }
   return(Res)

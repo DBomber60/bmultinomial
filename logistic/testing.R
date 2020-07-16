@@ -13,11 +13,13 @@ set.seed(1)
 # 3. get full gibbs sampler to work on mMALA case
 # 4. make diagnostic plots from MCMC
 
+# check out roberts + rosenthal 1998 for epsilon scaling 
+
 # does MMALA scale better with more predictors ??
 
 # correlated predictors
 # make a covariance matrix
-p = 10
+p = 20
 n = 500
 
 sig = matrix(nrow = p, ncol = p)
@@ -28,7 +30,7 @@ for(i in 1:p) {
   }
 }
 
-sig.5 = (exp(sig * log(.6)))
+sig.5 = (exp(sig * log(.3)))
 X = cbind(rmvnorm(n, sigma = sig.5))
 #X = rmvnorm(n, mean = rep(0,p))
 
@@ -46,12 +48,11 @@ beta_0 = rep(0, p)
 # send this to plotter for a visually informed choice of hyperparameters
 #plot_emvs(p, 5, beta_0, theta.init = .5, nu0_low = 0.01, nu0_high = 1, increment = .01, nu_1=1000)
 
-
 init.vals = EMVS(beta_0, theta.init = .5, nu_0 = .5, nu_1 = 100)
 
 #Call the MCMC Sampler
 epsilon = .05;
-Niter = 500;
+Niter = 2;
 burnin = floor(0.2 * Niter)
 Res.mM = M2MALA_logRegr(Niter,Y,X,epsilon, beta.init = init.vals[[1]])
 
@@ -65,5 +66,5 @@ plotter = function(output, whichbeta, burnin, Niter, type) {
 }
 
 par(mfrow = c(1,3))
-plotter(Res.mM, whichbeta = 1, burnin, Niter, type = "MMALA")
+plotter(Res.mM, whichbeta = 4, burnin, Niter, type = "MMALA")
 
