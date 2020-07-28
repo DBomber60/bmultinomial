@@ -19,7 +19,7 @@ set.seed(1)
 
 # correlated predictors
 # make a covariance matrix
-p = 10
+p = 100
 n = 500
 
 sig = matrix(nrow = p, ncol = p)
@@ -34,7 +34,7 @@ sig.5 = (exp(sig * log(.6)))
 #X = cbind(rmvnorm(n, sigma = sig.5))
 X = rmvnorm(n, mean = rep(0,p)) # uncorrelated
 
-beta.true = c(1, 1, 1, 1.5, 3, rep(0, p-5))
+beta.true = c(2, 2, 1, 1.5, 3, rep(0, p-5))
 eta = X %*% beta.true
 Y = rbinom(n, 1, prob = plogis(eta))
 
@@ -54,7 +54,7 @@ init.vals = EMVS(beta_0, theta.init = .5, nu_0 = .5, nu_1 = 100)
 epsilon = .05;
 Niter = 1000;
 burnin = floor(0.2 * Niter)
-Res.mM = mMALA_logRegr(Niter,Y,X,epsilon, beta.init = init.vals[[1]], theta.init = init.vals[[2]],
+Res.mM = mMALA_logRegr(Niter,Y,X,epsilon, beta.init = init.vals[[1]], theta.init = .5,
                        pstar = init.vals[[3]], v0 = 0.5, v1 = 1000)
 #Res.MM = M2MALA_logRegr(Niter,Y,X,epsilon, beta.init = init.vals[[1]])
 
@@ -68,5 +68,19 @@ plotter = function(output, whichbeta, burnin, Niter, type) {
 }
 
 par(mfrow = c(1,3))
-plotter(Res.mM, whichbeta = 3, burnin, Niter, type = "MMALA")
+plotter(Res.mM, whichbeta = 6, burnin, Niter, type = "MMALA")
+
+
+M = Res.mM[,(p+1):(2*p)]
+
+CoC = t(M) %*% M
+
+library(tidyverse)
+
+CoC = data.frame(CoC)
+CoC$which = paste("gamma",1:p)
+CoC_long = pivot_longer(data.frame(CoC), cols = starts_with("gamma"))
+ggplot(CoC_long, aes(x=which, y=name, fill=value)) + 
+  geom_tile(color = "white") + 
+  scale_fill_gradient2(low = "white", high = "blue")
 

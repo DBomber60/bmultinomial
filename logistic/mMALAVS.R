@@ -34,8 +34,7 @@ beta_prop_mMALA = function(beta_old, epsilon, y, X, dstar) {
 # MMALA acceptance probability
 acc_mMALA = function(beta_old, beta_prop, y, X, epsilon, dstar) {
   a = exp(logpi(beta_prop,y,X, dstar) - logpi(beta_old,y,X, dstar) )
-  
-  print(a)
+
   Ginv_old = hessian(beta_old, y, X, dstar)
   grad_old = grad(beta_old, y, X, dstar)
   
@@ -179,11 +178,12 @@ M2MALA_logRegr = function(Niter, y, X, epsilon, beta.init){
 
 mMALA_logRegr = function(Niter, y, X, epsilon, beta.init, theta.init, pstar, v0, v1) { #, theta.init, gamma.init){
   p=length(X[1,]); n=length(y);
-  Res = matrix(NA,ncol=p,nrow = Niter);
+  Res = matrix(NA,ncol=p * 2, nrow = Niter);
+  dimnames(Res)[[2]] = c( paste("beta",1:p), paste("gamma",1:p) )
   
   # initialize parameters
   beta = beta.init 
-  gam = ifelse(pstar > .5, 1, 0)
+  gam = ifelse(pstar > .2, 1, 0)
   dstar = ifelse(gam==1, 1/v1, 1/v0)
   theta = theta.init
   
@@ -212,7 +212,9 @@ mMALA_logRegr = function(Niter, y, X, epsilon, beta.init, theta.init, pstar, v0,
     dstar = ifelse(gam==1, 1/v1, 1/v0)
     
     epsilon = epsilon + (1/jj^0.7)*(Acc - 0.5);
-    Res[jj,] = beta
+    
+    Res[jj,] = c(beta, gam)
+    
   }
   return(Res)
 }
