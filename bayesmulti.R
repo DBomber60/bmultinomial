@@ -15,20 +15,20 @@ logpi_m = function(Y, eta) { # y_int,
 # gradient: vector of length (k-1) times p (p covariates for each of K-1 classes)
 # dstar is the inverse of the prior covariance
 
-grad_multi = function(B, phat_m, X, Y, K, w, dstar = 0) {
+grad_multi = function(B, phat_m, X, Y, K, w, dstar) {
   n = nrow(Y)
   -B * dstar + (kronecker(diag(K-1), t(X))) %*% array(vec((Y[,2:K] - w * phat_m)), dim = c(n*(K-1),1)) 
 }
 
 # hessian: matrix - kp times kp
-H = function(phat_m, X, K, w) {
+H = function(phat_m, X, K, w, dstar) {
   p = dim(X)[2]
   n = dim(X)[1]
   t1 = array(0, dim = c( p * (K-1), p* (K-1) ) )
   for(i in 1:n) {
     t1 = t1 + kronecker( diag(w[i] * phat_m[i,]) - outer(w[i] * phat_m[i,], phat_m[i,]), outer(X[i,], X[i,])) #diag
   }
-  return(solve( diag((K-1)*p) + t1) )
+  return(solve(dstar + t1) ) # diag((K-1)*p) +
 }
 
 # input: two lists - old derivatives(d) and new (q)

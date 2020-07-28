@@ -15,15 +15,15 @@ nr.beta.mult = function(beta.init, dstar, X, Y, K, w = rep(1, nrow(Y))) {
   beta.current= beta.init
   dnr.ll = 1
   
-  for (i in 1:10) { #  while (dnr.ll > 1e-8)
+  while (dnr.ll > 1e-8) { #  
       beta.old = beta.current
       beta.current.m = matrix(beta.current, nrow = p, ncol = K-1)
       e_eta = exp( X %*% beta.current.m )
       phat_m = e_eta / (1 + rowSums(e_eta))
       # Y = unw
       # w = pr
-      U = grad_multi(B = 0, phat_m, X, Y, K, w)
-      H.curr = H(phat_m, X, K, w)
+      U = grad_multi(B = beta.current, phat_m, X, Y, K, w, dstar)
+      H.curr = H(phat_m, X, K, w, dstar)
       beta.current = beta.current + H.curr %*% U
       dnr.ll = sqrt(crossprod(beta.current - beta.old))
     }
@@ -65,7 +65,7 @@ pr = rep(.5, 500) #rbeta(500, shape1 = 1, shape2 = 2)
 unw = gammas * pr
 
 summary(nnet::multinom(unw ~ X - 1, weights = pr))
-b = (nr.beta.mult(beta.init, dstar = 0, X, Y = unw, K, w = pr))
+b = (nr.beta.mult(beta.init, dstar = rep(0, (K - 1) * p), X, Y = unw, K, w = pr))
 
 
 
