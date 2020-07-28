@@ -5,7 +5,7 @@ set.seed(1)
 # 1. does it work for proportions? CHECK
 # 2. add weights to maximizer CHECK
 # 3. test weights CHECK
-# 4. tweak it to make it bayesian!
+# 4. tweak it to make it bayesian! CHECK
 # 5. substitute into current EM setup
 
 # maximize beta given phat.current/ beta.1.nr
