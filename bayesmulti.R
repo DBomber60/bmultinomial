@@ -28,7 +28,7 @@ H = function(phat_m, X, K, w, dstar) {
   for(i in 1:n) {
     t1 = t1 + kronecker( diag(w[i] * phat_m[i,]) - outer(w[i] * phat_m[i,], phat_m[i,]), outer(X[i,], X[i,])) #diag
   }
-  return(solve(dstar + t1) ) # diag((K-1)*p) +
+  return(solve( diag(dstar) + t1) ) # diag((K-1)*p) +
 }
 
 # input: two lists - old derivatives(d) and new (q)
