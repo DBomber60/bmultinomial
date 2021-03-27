@@ -1,0 +1,1 @@
+MM for logistic model
