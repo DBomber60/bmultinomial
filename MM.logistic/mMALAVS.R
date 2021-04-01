@@ -1,13 +1,17 @@
 set.seed(3)
 library(mvtnorm)
 
+# TODO
+# 1. correct acceptance probability in M2 (incorporate logpi!) (already) done
+# 2. sample the inclusion probabilities in M2
+
 # compute the log-posterior dist. -- assumes N(0,D^-1) prior on beta vector
 logpi = function(beta,y,X, dstar){
   eta = X%*%beta;
   return(sum(y*eta -log(1+exp(eta))) - .5 * sum( dstar * beta^2 ) )
 }
 
-# compute gradient based on a N(0,I) prior on beta
+# compute gradient based on a N(0,D^-1) prior on beta
 grad = function(beta, y, X, dstar) {
   eta = X%*%beta;
   return(-dstar * beta + t(X) %*% (y - (1+exp(-eta))^-1))
@@ -22,35 +26,6 @@ hessian = function(beta,y,X, dstar) {
   C = solve(diag(as.numeric(dstar)) + t(as.numeric(phat* (1-phat)) * X ) %*% X)
   return(C)
 }
-
-# mMALA beta proposal
-beta_prop_mMALA = function(beta_old, epsilon, y, X, dstar) {
-  p = dim(X)[2]
-  C = hessian(beta_old, y, X, dstar)
-  rootC = chol(C)
-  return( beta_old + .5 * epsilon^2 * C %*% grad(beta_old, y, X, dstar) + epsilon * rootC %*% rnorm(p) )
-}
-
-# MMALA acceptance probability
-acc_mMALA = function(beta_old, beta_prop, y, X, epsilon, dstar) {
-  a = exp(logpi(beta_prop,y,X, dstar) - logpi(beta_old,y,X, dstar) )
-
-  Ginv_old = hessian(beta_old, y, X, dstar)
-  grad_old = grad(beta_old, y, X, dstar)
-  
-  Ginv_new = hessian(beta_prop, y, X, dstar)
-  grad_new = grad(beta_prop, y, X, dstar)
-  
-  new_given_old = dmvnorm(as.numeric(beta_prop), mean= beta_old + .5 * epsilon^2 * Ginv_old %*% grad_old,
-                          sigma = epsilon^2 * Ginv_old, log = T)
-  
-  old_given_new = dmvnorm(as.numeric(beta_old), mean= beta_prop + .5 * epsilon^2 * Ginv_new %*% grad_new,
-                          sigma = epsilon^2 * Ginv_new, log = T)
-  
-  b = exp(old_given_new - new_given_old)
-  return(a * b)
-}
-
 
 # functions for riemann manifold
 
@@ -107,7 +82,6 @@ beta_prop_M2MALA = function(beta_old, epsilon, y, X, dstar) {
   beta_prop = mu_prop + epsilon * rootC %*% rnorm(p)
   
   # now get moments associated with the beta proposal 
-  
   gnew = grad(beta_prop, y, X, dstar)
   hnew = hessian(beta_prop, y, X, dstar)
   elements = element1(hnew, beta_prop, y, X)

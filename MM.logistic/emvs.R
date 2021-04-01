@@ -17,6 +17,9 @@ nr.beta = function(beta.init, phat.init, dstar) {
   return(beta.current)
 }
 
+# replace above with BFGS using optim function
+
+
 
 # implementation of the EMVS procedure of Rockava and George, 2014
 
@@ -33,7 +36,7 @@ EM.iter = function(beta.current, theta.current, nu_0, nu_1) {
   
   # M-Step
   
-  # maximize beta using Newtwon Rhapson
+  # maximize beta using Newtwon-Rhapson
   
   beta.new = nr.beta(rep(0, p), phat.init = rep(.5, n), dstar)
 
